@@ -20,7 +20,7 @@ const User=sequelize.define("Usuario",{
         type:DataTypes.INTEGER
     },
     localizacao:{
-        type:DataTypes.GEOMETRY
+        type:DataTypes.JSON
     }
 });
 
