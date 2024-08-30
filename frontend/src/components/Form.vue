@@ -25,7 +25,10 @@ export default{
                     coordinates:[this.lat,this.lng]
                 }
             }
-            console.log(Pessoa.localizacao.coordinates[0])
+            if(!this.nome || !this.email || !this.idade){
+            alert('campos vazios')
+            }else{
+
             fetch('http://localhost:3000/user',{
                 method:'POST',
                 headers:{
@@ -42,6 +45,7 @@ export default{
                 this.status=response.status;
                 console.log(e);
             })
+            }
         }
     },
     watch:{
