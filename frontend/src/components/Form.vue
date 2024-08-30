@@ -1,6 +1,4 @@
 <script>
-import { map } from 'leaflet';
-
 export default{
     name:'App',
     data() {
@@ -8,24 +6,26 @@ export default{
             nome:'',
             email:'',
             idade:'',
-            localizacao:{
-                type:'Point',
-                coordinates:[-21321321312,432432321]
-            },
             verify:false,
             msg:'',
-            status:''
+            status:'',
+            class:'',
+            lat:'',
+            lng:''
         }
     },
     methods: {
         fetchData(){
-            this.verify=true;
             const Pessoa={
                 nome:this.nome,
                 email:this.email,
                 idade:this.idade,
-                localizacao:this.localizacao
+                localizacao:{
+                    type:'Point',
+                    coordinates:[this.lat,this.lng]
+                }
             }
+            console.log(Pessoa.localizacao.coordinates[0])
             fetch('http://localhost:3000/user',{
                 method:'POST',
                 headers:{
@@ -33,30 +33,32 @@ export default{
                 },
                 body: JSON.stringify(Pessoa)
             }).then(response=>{
+                this.verify=true;
                 this.status=response.status;
-                console.log('deu certo');
+                console.log(this.status);
                 
             }).catch(e=>{
-                this.msg='deu errado';
+                this.verify=true;
+                this.status=response.status;
                 console.log(e);
-                
             })
         }
     },
     watch:{
         verify(){
-            return this.status===200?this.msg='deu certo':this.msg='deu errado';
+            this.msg=this.status===201?'deu certo':'deu errado';
+            this.class=this.status===201?'sucess':'error';
         }
     },
     mounted() {    
-        let map = L.map('map', {
+        const map = L.map('map', {
             center: [-6.887698002563706, -38.56015173326553],
             zoom: 15,
             minZoom: 14,
             maxZoom: 16
         });
 
-        let marker = L.marker([-6.887698002563706, -38.56015173326553], {
+        const marker = L.marker([-6.887698002563706, -38.56015173326553], {
             draggable: true,
         }).addTo(map);
 
@@ -65,19 +67,22 @@ export default{
         map.on('locationfound', e => {
             marker.setLatLng(e.latlng);
             map.setView(e.latlng);
+            this.lat = marker.getLatLng().lat;
+            this.lng = marker.getLatLng().lng;
         });
-
 
         map.on('click', l => {
             marker.setLatLng(l.latlng);
             map.setView(l.latlng);
+            this.lat = marker.getLatLng().lat;
+            this.lng = marker.getLatLng().lng;
         });
 
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
-            },
+    }   
 }
 </script>
 <template>
@@ -88,9 +93,9 @@ export default{
             <h1>Formulario</h1>
             <input type='text' v-model="nome" placeholder="digite seu nome" >
             <input type='text' v-model="email" placeholder="digite seu email">
-            <input type='text' v-model="idade" placeholder="digite sua idade">
+            <input type='number' v-model="idade" placeholder="digite sua idade">
             <button>enviar</button>
-        <p v-if="verify">{{ msg }}</p>
+        <p v-if="verify" :class="class">{{ msg }}</p>
     </form>
     </div>
 </template>
@@ -116,12 +121,14 @@ export default{
     margin-bottom: 30px;
 }
 input{
+    box-sizing: border-box;
     margin-top: 10px;
     margin-bottom: 10px;
     width: 400px;
     height: 25px;
     border-radius: 20px;
     border: black solid 1px;
+    padding: 10px;
 }
 #form button{
     font-size: 17px;
@@ -140,5 +147,12 @@ input{
 #form button:active{
     background-color: dodgerblue;
 }
+.sucess{
+    margin-top: 10px;
+    color:#28a745;
+}
+.error{
+    margin-top: 10px;
+    color:#dc3545;
+}
 </style>
-
