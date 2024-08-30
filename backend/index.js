@@ -3,7 +3,7 @@ import router from './src/routes/userRouter.js'
 import cors from 'cors';
 
 let corsOptions = {
-    origin: ['http://localhost:5173']
+    origin: ['http://localhost:8080']
   };
 const app=express();
 
